@@ -4,9 +4,11 @@ package com.huberto.tacocloud.controllers;
 import com.huberto.tacocloud.domain.Ingredient;
 import com.huberto.tacocloud.domain.Taco;
 import com.huberto.tacocloud.domain.TacoOrder;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import com.huberto.tacocloud.domain.Ingredient.*;
@@ -63,9 +65,13 @@ public class DesignTacoController {
     }
 
     @PostMapping
-    public String processTaco(Taco taco, @ModelAttribute TacoOrder tacoOrder){
+    public String processTaco(@Valid Taco taco, Errors errors, @ModelAttribute TacoOrder tacoOrder){
+        if(errors.hasErrors()){
+            return "design";
+        }
         tacoOrder.addTaco(taco);
         log.info("Procession taco: {}", taco);
+
         return "redirect:/orders/current";
     }
 
