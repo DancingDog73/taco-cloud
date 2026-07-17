@@ -4,8 +4,10 @@ package com.huberto.tacocloud.controllers;
 import com.huberto.tacocloud.domain.Ingredient;
 import com.huberto.tacocloud.domain.Taco;
 import com.huberto.tacocloud.domain.TacoOrder;
+import com.huberto.tacocloud.repositories.IngredientRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -27,10 +29,23 @@ import java.util.stream.Collectors;
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
 
+    private final IngredientRepository ingredientRepository;
+
+    @Autowired
+    public DesignTacoController(IngredientRepository repo){
+        this.ingredientRepository = repo;
+    }
 
     @ModelAttribute
     public void addIngredientsToModel(Model model){
-        List<Ingredient> ingredients = Arrays.asList(
+        Iterable<Ingredient> ingredients = ingredientRepository.findAll();
+        Type[] types = Ingredient.Type.values();
+        for(Type type : types){
+            model.addAttribute(type.toString().toLowerCase(), filterByType((List<Ingredient>) ingredients, type));
+        }
+
+
+        /*List<Ingredient> ingredients = Arrays.asList(
           new Ingredient("FLTO", "FlourTortilla", Type.WRAP),
                 new Ingredient("COTO", "Corn Tortilla", Type.WRAP),
                 new Ingredient("GRBF", "Ground Beef", Type.PROTEIN),
@@ -46,7 +61,7 @@ public class DesignTacoController {
         Type[] types = Ingredient.Type.values();
         for(Type type: types){
             model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
-        }
+        }*/
     }
 
     @ModelAttribute(name = "tacoOrder")
