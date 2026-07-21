@@ -1,10 +1,11 @@
 package com.huberto.tacocloud.security;
 
 
+import com.huberto.tacocloud.domain.User;
+import com.huberto.tacocloud.repositories.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,12 +30,13 @@ public class SecurityConfig {
 
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder){
-        List<UserDetails> userDetails = new ArrayList<>();
-        userDetails.add(
-                new User("soundiata", encoder.encode("niani"), Arrays.asList(new SimpleGrantedAuthority("USER"))));
-        userDetails.add(new User("soumaoro", encoder.encode("kirina"), Arrays.asList(new SimpleGrantedAuthority("USER"))));
-        return  new InMemoryUserDetailsManager(userDetails);
+    public UserDetailsService userDetailsService(UserRepository userRepository){
+        return username -> {
+            User user = userRepository.findByUsername(username);
+            if(user != null){
+                return user;
+            } throw new UsernameNotFoundException("User '" + username + "' not found");
+        };
     }
 
 
